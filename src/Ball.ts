@@ -6,11 +6,16 @@ export default class Ball {
   private canvasId: string = "";
   private canvas: HTMLCanvasElement | null = null;
   private context: CanvasRenderingContext2D | null = null;
-  private dx: number = 2;
-  private dy: number = -2;
+  private dx: number = 0;
+  private dy: number = 0;
+  private vx: number = 0;
+  private vy: number = 0;
+  private ui = 0;
+  private maxV = 150;
 
-  constructor(canvasId: string) {
+  constructor(canvasId: string, ui: number) {
     this.canvasId = canvasId;
+    this.ui = ui;
   }
 
   get hasCanvas(): boolean {
@@ -61,44 +66,63 @@ export default class Ball {
   /**
    * @description движение по x
    */
-  setDx(dx: number): void {
-    this.dx = dx;
+  setDx(gamma: number): void {
+    this.dx = 100 * Math.sin(gamma);
   }
 
   /**
    * @description движение по y
    */
-  setDy(dy: number): void {
-    this.dy = dy;
+  setDy(beta: number): void {
+    this.dy = 100 * Math.sin(beta);
   }
 
-  public draw(gX: number, gY: number) {
-    if (gX !== this.dx) {
-      this.setDx(gX);
+  updateVx(): void {
+    if (Math.abs(this.vx + (this.dx * this.ui) / 1000) <= this.maxV) {
+      this.vx += (this.dx * this.ui) / 1000;
     }
-    if (gY !== this.dy) {
-      this.setDy(gY);
+  }
+
+  updateVy(): void {
+    if (Math.abs(this.vy + (this.dy * this.ui) / 1000) <= this.maxV) {
+      this.vy += (this.dy * this.ui) / 1000;
     }
+  }
+
+  lossEnergy(v: number): number {
+    return -1 * Math.sign(v) * Math.sqrt(0.8 * Math.pow(v, 2));
+  }
+
+  public draw(beta: number, gamma: number) {
     if (this.context && this.canvas) {
       this.context.lineWidth = 1;
       this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.context.font = "12px serif";
+      this.context.fillText(`Скорость X ${Math.abs(this.vx)}`, 5, 10);
+      this.context.fillText(`Скорость Y ${Math.abs(this.vy)}`, 5, 20);
+      this.setDx(gamma);
+      this.setDy(beta);
+      this.updateVx();
+      this.updateVy();
       this.drawBall();
-
+      const vx = (this.vx * this.ui) / 1000;
+      const vy = (this.vy * this.ui) / 1000;
+      this.setX(this.x + vx);
+      this.setY(this.y + vy);
       if (
-        this.x + this.dx > this.canvas.width - this.ballRadius ||
-        this.x + this.dx < this.ballRadius
+        this.x > this.canvas.width - this.ballRadius ||
+        this.x < this.ballRadius
       ) {
-        this.setDx(-this.dx);
+        this.setX(this.x - vx);
+        this.vx = this.lossEnergy(this.vx);
       }
       if (
-        this.y + this.dy > this.canvas.height - this.ballRadius ||
-        this.y + this.dy < this.ballRadius
+        this.y > this.canvas.height - this.ballRadius ||
+        this.y < this.ballRadius
       ) {
-        this.setDy(-this.dy);
+        this.setY(this.y - vy);
+        this.vy = this.lossEnergy(this.vy);
       }
-
-      this.setX(this.x + this.dx);
-      this.setY(this.y + this.dy);
     }
   }
 

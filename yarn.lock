@@ -4430,6 +4430,21 @@ error-stack-parser@^2.0.6:
   dependencies:
     stackframe "^1.1.1"
 
+eruda-code@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/eruda-code/-/eruda-code-2.0.0.tgz#856fd890cbdaad81e223e141ffe587d025d8790f"
+  integrity sha512-wIFfsbncCLaK7dawJMg8cP1dE7+5gEfNt202P6jJ+xB6O2atP+YdgJIuC1S4kHyNNpYFWrtDkinn50hILPxDdA==
+
+eruda-dom@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/eruda-dom/-/eruda-dom-2.0.0.tgz#b4aaac8fcf9df26314a3a98f3d3b0cb02a2aa550"
+  integrity sha512-aVsfmHow+LwInEBvn57WY5vQLNL9uJ8goV6mKTazhOWweI1h/XyqvNt1ojZjQvLM66kWDTgUNuugrP3k6KWDyw==
+
+eruda@^2.4.1:
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/eruda/-/eruda-2.4.1.tgz#dedc9b78546feb827d6ccafbfd7dae480509d2a2"
+  integrity sha512-rI16JoCsyy/pzXbPo7X6EMSUrhbtKZeFZGopiqrmCKxA8GlH61IXjlQAk1SWGpVpkJ6A1z7leuF8EmhFsU+OXQ==
+
 es-abstract@^1.17.2:
   version "1.17.7"
   resolved "https://registry.yarnpkg.com/es-abstract/-/es-abstract-1.17.7.tgz#a4de61b2f66989fc7421676c1cb9787573ace54c"

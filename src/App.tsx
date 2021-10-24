@@ -14,25 +14,22 @@ import "./App.css";
 import bridge from "@vkontakte/vk-bridge";
 import Ball from "./Ball";
 
-let _gyroscopeX = 0;
-let _gyroscopeY = 0;
-
-bridge.subscribe((event: any) => {
-  console.log(event)
-  if (event.detail.type === "VKWebAppGyroscopeChanged") {
-    _gyroscopeX = event.detail.data.x;
-    _gyroscopeY = event.detail.data.y;
-  }
-});
-
 function App() {
   const { viewWidth } = useAdaptivity();
   const [firstLoading, setFirstLoading] = useState(true);
-  const gyroscopeX = _gyroscopeX;
-  const gyroscopeY = _gyroscopeY;
-  const ball: Ball = new Ball("#balanceBall");
+  const ui = 10;
+  const ball = new Ball("#balanceBall", ui);
 
   useEffect(() => {
+    let beta = '0';
+    let gamma = '0';
+    bridge.subscribe(({ detail: { type, data } }) => {
+      if (type === "VKWebAppDeviceMotionChanged") {
+        let gData: any = data;
+        beta = gData.beta
+        gamma = gData.gamma
+      }
+    });
     if (firstLoading) {
       setTimeout(async () => {
         setFirstLoading(false);
@@ -43,10 +40,11 @@ function App() {
         if (!ball.hasCanvas) {
           ball.setCanvas();
         }
-        console.log(gyroscopeX, gyroscopeY)
-        ball.draw(+gyroscopeX, +gyroscopeY);
+        if (ball.hasCanvas) {
+          ball.draw(+beta, +gamma);
+        }
       }
-    }, 10);
+    }, ui);
     return () => {
       clearInterval(interval);
     };
