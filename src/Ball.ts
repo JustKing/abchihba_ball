@@ -11,7 +11,7 @@ export default class Ball {
   private vx: number = 0;
   private vy: number = 0;
   private ui = 0;
-  private maxV = 150;
+  private maxV = 100;
 
   constructor(canvasId: string, ui: number) {
     this.canvasId = canvasId;
@@ -38,7 +38,7 @@ export default class Ball {
         .querySelector("header")
         ?.getBoundingClientRect().height;
       if (mainWidth && mainHeight && headerHeight) {
-        canvas.height = mainHeight - headerHeight;
+        canvas.height = mainHeight - headerHeight - 20;
         canvas.width = mainWidth;
       }
     }
@@ -93,10 +93,64 @@ export default class Ball {
     return -1 * Math.sign(v) * Math.sqrt(0.8 * Math.pow(v, 2));
   }
 
+  private drawMaze() {
+    if (this.context && this.canvas) {
+      this.context.lineWidth = 4;
+      this.context.strokeStyle = "black";
+      this.context.beginPath();
+      this.context.moveTo(0, 0);
+      this.context.lineTo(this.canvas.width, 0);
+      this.context.lineTo(this.canvas.width, this.canvas.height);
+      this.context.lineTo(0, this.canvas.height);
+      this.context.lineTo(0, 0);
+      this.context.stroke();
+      this.context.beginPath();
+      this.context.moveTo(this.canvas.width / 2 + 30, this.canvas.height);
+      this.context.lineTo(this.canvas.width / 2 + 30, this.canvas.height - 70);
+      this.context.lineTo(this.canvas.width / 2 - 30, this.canvas.height - 70);
+      this.context.lineTo(this.canvas.width / 2 - 30, this.canvas.height - 70);
+      this.context.moveTo(this.canvas.width / 2 - 30, this.canvas.height);
+      this.context.lineTo(this.canvas.width / 2 - 30, this.canvas.height - 20);
+      this.context.lineTo(this.canvas.width / 2 - 100, this.canvas.height - 20);
+      this.context.lineTo(this.canvas.width / 2 - 100, this.canvas.height);
+      this.context.moveTo(this.canvas.width / 2 - 150, this.canvas.height);
+      this.context.lineTo(this.canvas.width / 2 - 150, 0);
+      this.context.moveTo(this.canvas.width / 2 - 100, 0);
+      this.context.lineTo(this.canvas.width / 2 - 100, this.canvas.height - 50);
+      this.context.lineTo(this.canvas.width / 2 - 80, this.canvas.height - 50);
+      this.context.lineTo(this.canvas.width / 2 - 80, this.canvas.height - 120);
+      this.context.lineTo(this.canvas.width / 2, this.canvas.height - 120);
+      this.context.stroke();
+    }
+  }
+
+  private checkCollision(): boolean {
+    if (this.context) {
+      let imgData = this.context.getImageData(
+        this.x - this.ballRadius / 2 - 2,
+        this.y - this.ballRadius / 2 - 2,
+        this.ballRadius / 2 + 2,
+        this.ballRadius / 2 + 2
+      );
+      let pixels = imgData.data;
+      for (let i = 0; i < pixels.length; i += 4) {
+        const r = pixels[i];
+        const g = pixels[i + 1];
+        const b = pixels[i + 2];
+        if (r === 0 && g === 0 && b === 0) {
+          return true;
+        }
+      }
+      return false;
+    }
+    return false;
+  }
+
   public draw(beta: number, gamma: number) {
     if (this.context && this.canvas) {
       this.context.lineWidth = 1;
       this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.drawMaze();
       this.context.font = "12px serif";
       this.context.fillText(`Скорость X ${Math.abs(this.vx)}`, 5, 10);
       this.context.fillText(`Скорость Y ${Math.abs(this.vy)}`, 5, 20);
@@ -111,14 +165,16 @@ export default class Ball {
       this.setY(this.y + vy);
       if (
         this.x > this.canvas.width - this.ballRadius ||
-        this.x < this.ballRadius
+        this.x < this.ballRadius ||
+        this.checkCollision()
       ) {
         this.setX(this.x - vx);
         this.vx = this.lossEnergy(this.vx);
       }
       if (
         this.y > this.canvas.height - this.ballRadius ||
-        this.y < this.ballRadius
+        this.y < this.ballRadius ||
+        this.checkCollision()
       ) {
         this.setY(this.y - vy);
         this.vy = this.lossEnergy(this.vy);
